@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DSCR Loan Calculator</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+    input { width: 100%; padding: 8px; margin: 5px 0; }
+    button { padding: 10px 20px; margin-top: 10px; }
+    .result { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h2>DSCR Loan Calculator</h2>
+
+  <label>Purchase Price:</label>
+  <input type="number" id="purchasePrice" />
+
+  <label>Monthly Rent:</label>
+  <input type="number" id="monthlyRent" />
+
+  <label>Interest Rate (%):</label>
+  <input type="number" id="interestRate" step="0.01" />
+
+  <label>Insurance - Annual:</label>
+  <input type="number" id="insurance" />
+
+  <label>Property Taxes - Annual:</label>
+  <input type="number" id="propertyTaxes" />
+
+  <button onclick="calculateDSCR()">Calculate</button>
+
+  <div class="result" id="output"></div>
+
+  <script>
+    function calculateDSCR() {
+      const purchasePrice = parseFloat(document.getElementById('purchasePrice').value);
+      const monthlyRent = parseFloat(document.getElementById('monthlyRent').value);
+      const interestRate = parseFloat(document.getElementById('interestRate').value) / 100;
+      const insurance = parseFloat(document.getElementById('insurance').value);
+      const propertyTaxes = parseFloat(document.getElementById('propertyTaxes').value);
+
+      const annualRent = monthlyRent * 12;
+      const noi = annualRent - insurance - propertyTaxes;
+
+      const output = document.getElementById('output');
+      output.innerHTML = '';
+
+      [1.2, 1.25].forEach(dscr => {
+        const maxAnnualDebtService = noi / dscr;
+        const maxMonthlyPayment = maxAnnualDebtService / 12;
+
+        const monthlyRate = interestRate / 12;
+        const numPayments = 360;
+
+        const loanAmount = (maxMonthlyPayment * (1 - Math.pow(1 + monthlyRate, -numPayments))) / monthlyRate;
+        const downPayment = purchasePrice - loanAmount;
+        const downPaymentPercent = (downPayment / purchasePrice) * 100;
+
+        output.innerHTML += `
+          <h3>DSCR: ${dscr}</h3>
+          <p>Down Payment Required: <strong>$${downPayment.toFixed(2)}</strong> (${downPaymentPercent.toFixed(2)}%)</p>
+        `;
+      });
+    }
+  </script>
+</body>
+</html>
